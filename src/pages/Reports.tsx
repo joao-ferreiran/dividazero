@@ -54,14 +54,14 @@ export default function Reports() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Evolution Chart */}
         <div className="lg:col-span-12 bg-white rounded-2xl border border-outline-variant shadow-sm p-6">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
             <h2 className="text-xl font-bold">Evolução: Dívidas vs Pagamentos</h2>
             <select className="bg-surface border border-outline-variant rounded-xl text-sm py-1.5 px-3 focus:border-primary outline-none">
               <option>Este Ano</option>
               <option>Últimos 6 Meses</option>
             </select>
           </div>
-          <div className="h-[350px] w-full">
+          <div className="h-[250px] sm:h-[350px] w-full overflow-x-auto">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={reportData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E1E2E4" />
@@ -104,7 +104,7 @@ export default function Reports() {
         </div>
 
         {/* Projection Card */}
-        <div className="lg:col-span-12 xl:col-span-5 bg-white rounded-2xl border border-outline-variant shadow-sm p-6 flex flex-col justify-between">
+        <div className="lg:col-span-12 xl:col-span-5 bg-white rounded-2xl border border-outline-variant shadow-sm p-4 sm:p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <TrendingDown className="text-secondary" />
@@ -118,7 +118,7 @@ export default function Reports() {
               <Calendar className="text-on-secondary-container" size={40} />
             </div>
             <div>
-              <div className="label-numeric text-5xl font-bold tracking-tight">
+              <div className="label-numeric text-3xl sm:text-5xl font-bold tracking-tight">
                 {debts.length > 0 ? "Dez 2024" : "---"}
               </div>
               <div className="text-[10px] font-bold text-secondary mt-2 uppercase tracking-widest leading-none">Mês Previsto para Liberdade</div>
@@ -142,7 +142,7 @@ export default function Reports() {
         </div>
 
         {/* Creditors List */}
-        <div className="lg:col-span-12 xl:col-span-7 bg-white rounded-2xl border border-outline-variant shadow-sm p-6 flex flex-col">
+        <div className="lg:col-span-12 xl:col-span-7 bg-white rounded-2xl border border-outline-variant shadow-sm p-4 sm:p-6 flex flex-col">
           <h2 className="text-xl font-bold mb-6">Maiores Credores</h2>
           <div className="flex-1 space-y-4">
             {dynamicCreditors.length > 0 ? (
@@ -171,7 +171,7 @@ export default function Reports() {
                       </div>
                     </div>
                   </div>
-                  {i < creditors.length - 1 && <div className="h-px bg-outline-variant/30 w-full" />}
+                  {i < dynamicCreditors.length - 1 && <div className="h-px bg-outline-variant/30 w-full" />}
                 </div>
               ))
             ) : (

@@ -39,7 +39,7 @@ export default function AddDebt() {
 
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold tracking-tight">Adicionar Nova Dívida</h1>
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Adicionar Nova Dívida</h1>
         <p className="text-on-surface-variant text-lg mt-2">Preencha os detalhes abaixo para registrar um novo compromisso financeiro.</p>
       </div>
 
@@ -48,7 +48,7 @@ export default function AddDebt() {
         {/* Left Column: Primary Details */}
         <div className="xl:col-span-8 space-y-6">
           {/* Main Info */}
-          <section className="bg-white rounded-2xl border border-outline-variant shadow-sm p-8">
+          <section className="bg-white rounded-2xl border border-outline-variant shadow-sm p-4 sm:p-8">
             <h2 className="text-xl font-bold mb-8 flex items-center gap-3">
               <div className="bg-primary/10 p-2 rounded-lg"><FileText className="text-primary" size={20} /></div>
               Informações Principais
@@ -207,7 +207,7 @@ export default function AddDebt() {
           </section>
 
           {/* Notifications */}
-          <section className="bg-white rounded-2xl border border-outline-variant shadow-sm p-8">
+          <section className="bg-white rounded-2xl border border-outline-variant shadow-sm p-4 sm:p-8">
             <h2 className="text-xl font-bold mb-6 flex items-center gap-3">
               <div className="bg-primary/10 p-2 rounded-lg"><BellRing className="text-primary" size={20} /></div>
               Lembretes de Pagamento
@@ -236,7 +236,7 @@ export default function AddDebt() {
           </section>
 
           {/* Observations */}
-          <section className="bg-white rounded-2xl border border-outline-variant shadow-sm p-8">
+          <section className="bg-white rounded-2xl border border-outline-variant shadow-sm p-4 sm:p-8">
             <h2 className="text-xl font-bold mb-6 flex items-center gap-3">
               <div className="bg-primary/10 p-2 rounded-lg"><Info className="text-primary" size={20} /></div>
               Descrição / Observações
@@ -251,8 +251,8 @@ export default function AddDebt() {
         </div>
 
         {/* Right Column: Settings & Actions */}
-        <div className="xl:col-span-4 space-y-6 sticky top-24">
-          <section className="bg-white rounded-2xl border border-outline-variant shadow-sm p-8">
+        <div className="xl:col-span-4 space-y-6 xl:sticky xl:top-24">
+          <section className="bg-white rounded-2xl border border-outline-variant shadow-sm p-4 sm:p-8">
             <h2 className="text-xl font-bold mb-2 flex items-center gap-3">
               <div className="bg-primary/10 p-2 rounded-lg"><Flag className="text-primary" size={20} /></div>
               Prioridade

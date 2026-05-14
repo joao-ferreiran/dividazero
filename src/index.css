@@ -32,6 +32,9 @@
   --color-on-error: #ffffff;
   --color-error-container: #ffdad6;
   --color-on-error-container: #93000a;
+
+  --color-outline: #74777f;
+  --color-outline-variant: #c3c6d6;
 }
 
 @layer base {
@@ -46,5 +49,6 @@
 
 /* Custom shadow from design system */
 .shadow-soft {
-  shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
+

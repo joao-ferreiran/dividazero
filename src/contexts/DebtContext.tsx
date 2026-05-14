@@ -1,9 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import { Debt, DebtStatus, SummaryData } from '../types';
 import { supabase } from '../lib/supabase';
+import { useAuth } from './AuthContext';
 
 interface DebtContextType {
   debts: Debt[];
+  loading: boolean;
   addDebt: (debt: Omit<Debt, 'id'>) => void;
   updateDebt: (id: string, debt: Partial<Debt>) => void;
   deleteDebt: (id: string) => void;
@@ -22,13 +24,21 @@ export const useDebts = () => {
 };
 
 export const DebtProvider = ({ children }: { children: ReactNode }) => {
+  const { user } = useAuth();
   const [debts, setDebts] = useState<Debt[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDebts();
-  }, []);
+    if (user) {
+      fetchDebts();
+    } else {
+      setDebts([]);
+      setLoading(false);
+    }
+  }, [user]);
 
   const fetchDebts = async () => {
+    setLoading(true);
     const { data, error } = await supabase
       .from('debts')
       .select('*')
@@ -36,6 +46,7 @@ export const DebtProvider = ({ children }: { children: ReactNode }) => {
 
     if (error) {
       console.error('Error fetching debts:', error);
+      setLoading(false);
       return;
     }
 
@@ -43,27 +54,32 @@ export const DebtProvider = ({ children }: { children: ReactNode }) => {
     today.setHours(0, 0, 0, 0);
 
     const processedDebts = data.map((debt: any) => {
-      // Map database columns to our interface (e.g., if we need camelCase)
-      // Assuming columns are identically named for now, or we'll ensure they are in SQL.
-      if (debt.status === 'pendente') {
-        const dueDate = new Date(debt.dueDate);
+      const processed = {
+        ...debt,
+        amount: Number(debt.amount),
+        originalAmount: debt.originalAmount ? Number(debt.originalAmount) : undefined
+      };
+      if (processed.status === 'pendente') {
+        const dueDate = new Date(processed.dueDate);
         const dueTime = new Date(dueDate.getTime() + dueDate.getTimezoneOffset() * 60000);
         dueTime.setHours(0, 0, 0, 0);
         
         if (dueTime < today) {
-          return { ...debt, status: 'atrasado' as DebtStatus };
+          return { ...processed, status: 'atrasado' as DebtStatus };
         }
       }
-      return debt;
+      return processed;
     });
 
     setDebts(processedDebts);
+    setLoading(false);
   };
 
   const addDebt = async (debtData: Omit<Debt, 'id'>) => {
+    if (!user) return;
     const { data, error } = await supabase
       .from('debts')
-      .insert([debtData])
+      .insert([{ ...debtData, user_id: user.id }])
       .select();
 
     if (error) {
@@ -162,8 +178,10 @@ export const DebtProvider = ({ children }: { children: ReactNode }) => {
     };
   };
 
+  const summary = useMemo(() => calculateSummary(), [debts]);
+
   return (
-    <DebtContext.Provider value={{ debts, addDebt, updateDebt, deleteDebt, markAsPaid, summary: calculateSummary() }}>
+    <DebtContext.Provider value={{ debts, loading, addDebt, updateDebt, deleteDebt, markAsPaid, summary }}>
       {children}
     </DebtContext.Provider>
   );

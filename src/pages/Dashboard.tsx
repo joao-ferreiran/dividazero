@@ -92,7 +92,7 @@ export default function Dashboard() {
             <h2 className="text-xl font-bold">Evolução de Pagamentos</h2>
             <span className="text-sm text-on-surface-variant">Últimos 6 meses</span>
           </div>
-          <div className="h-[240px] w-full">
+          <div className="h-[200px] sm:h-[240px] w-full overflow-x-auto">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={evolutionData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E1E2E4" />
@@ -184,7 +184,7 @@ function SummaryCard({ title, value, badge, progress, progressLabel, subtitle, i
         {icon}
       </div>
       <div className={cn(
-        "label-numeric text-4xl font-bold tracking-tight",
+        "label-numeric text-2xl sm:text-4xl font-bold tracking-tight",
         variant === 'secondary' ? "text-secondary" : variant === 'error' ? "text-error" : "text-on-surface"
       )}>
         {value}

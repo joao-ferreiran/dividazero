@@ -12,7 +12,7 @@ export default function DebtList() {
 
   const filteredDebts = debts.filter(debt => {
     const matchesSearch = debt.creditor.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          debt.description.toLowerCase().includes(searchTerm.toLowerCase());
+                          (debt.description || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter ? debt.status === statusFilter : true;
     const matchesCategory = categoryFilter ? debt.category === categoryFilter : true;
     return matchesSearch && matchesStatus && matchesCategory;
@@ -48,11 +48,11 @@ export default function DebtList() {
               className="w-full pl-10 pr-4 py-2 border border-outline-variant rounded-xl bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm"
             />
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="border border-outline-variant rounded-xl px-4 py-2 bg-surface text-sm focus:border-primary outline-none min-w-[150px]"
+              className="flex-1 sm:flex-none border border-outline-variant rounded-xl px-4 py-2 bg-surface text-sm focus:border-primary outline-none sm:min-w-[150px]"
             >
               <option value="">Todos os Status</option>
               <option value="atrasado">Atrasado</option>
@@ -62,13 +62,13 @@ export default function DebtList() {
             <select 
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="border border-outline-variant rounded-xl px-4 py-2 bg-surface text-sm focus:border-primary outline-none min-w-[150px]"
+              className="flex-1 sm:flex-none border border-outline-variant rounded-xl px-4 py-2 bg-surface text-sm focus:border-primary outline-none sm:min-w-[150px]"
             >
               <option value="">Categorias</option>
-              <option value="cartao">Cartão de Crédito</option>
-              <option value="financiamento">Financiamento</option>
-              <option value="emprestimo">Empréstimo Pessoal</option>
-              <option value="imposto">Impostos</option>
+              <option value="Cartão de Crédito">Cartão de Crédito</option>
+              <option value="Financiamento">Financiamento</option>
+              <option value="Empréstimo">Empréstimo Pessoal</option>
+              <option value="Contas Fixas">Contas Fixas</option>
             </select>
           </div>
 
@@ -81,7 +81,7 @@ export default function DebtList() {
             <DebtGridCard key={debt.id} debt={debt} onMarkPaid={markAsPaid} onDelete={deleteDebt} />
           ))
         ) : (
-          <div className="col-span-full bg-white rounded-3xl p-20 border border-outline-variant border-dashed text-center flex flex-col items-center gap-4">
+          <div className="col-span-full bg-white rounded-3xl p-10 md:p-20 border border-outline-variant border-dashed text-center flex flex-col items-center gap-4">
             <div className="bg-surface-container p-6 rounded-full">
               <Plus className="text-on-surface-variant" size={48} />
             </div>
@@ -111,8 +111,13 @@ interface DebtGridCardProps {
 
 function DebtGridCard({ debt, onMarkPaid, onDelete }: DebtGridCardProps) {
   const isAtrasado = debt.status === 'atrasado';
-
   const isPago = debt.status === 'pago';
+
+  const handleDelete = () => {
+    if (window.confirm(`Tem certeza que deseja excluir a dívida de "${debt.creditor}"?`)) {
+      onDelete(debt.id);
+    }
+  };
 
   return (
     <div className={cn(
@@ -179,13 +184,13 @@ function DebtGridCard({ debt, onMarkPaid, onDelete }: DebtGridCardProps) {
             <button className="flex-1 border border-outline text-on-surface-variant rounded-lg py-2 text-sm font-semibold hover:bg-surface-container-low transition-colors cursor-not-allowed">
               Comprovante
             </button>
-            <button onClick={() => onDelete(debt.id)} className="px-4 border border-error text-error rounded-lg py-2 text-sm font-semibold hover:bg-error/10 transition-colors">
+            <button onClick={handleDelete} className="px-4 border border-error text-error rounded-lg py-2 text-sm font-semibold hover:bg-error/10 transition-colors">
               <Trash2 size={18} />
             </button>
           </>
         ) : (
           <>
-            <button onClick={() => onDelete(debt.id)} className="w-12 flex items-center justify-center border border-error text-error rounded-lg py-2 hover:bg-error/10 transition-colors">
+            <button onClick={handleDelete} className="w-12 flex items-center justify-center border border-error text-error rounded-lg py-2 hover:bg-error/10 transition-colors">
               <Trash2 size={18} />
             </button>
             <button onClick={() => onMarkPaid(debt.id)} className="flex-1 bg-primary text-white rounded-lg py-2 text-sm font-semibold hover:opacity-90 transition-opacity">
