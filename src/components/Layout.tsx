@@ -54,7 +54,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <span className="hidden sm:inline text-sm font-medium text-on-surface-variant">Olá, <span className="font-bold text-on-surface">{userName}</span></span>
           <button 
             onClick={signOut}
-            className="p-2 rounded-full hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors" 
+            className="p-2 rounded-full hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors cursor-pointer" 
             title="Sair"
           >
             <LogOut size={20} />

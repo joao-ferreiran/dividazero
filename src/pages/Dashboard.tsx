@@ -137,7 +137,7 @@ export default function Dashboard() {
                   fill="#003d9b" 
                   radius={[4, 4, 0, 0]} 
                   barSize={40}
-                  className="hover:fill-secondary transition-colors"
+                  className="hover:fill-secondary transition-colors cursor-pointer"
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -149,14 +149,14 @@ export default function Dashboard() {
       <section className="space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold">Dívidas Próximas do Vencimento</h2>
-          <button onClick={() => navigate('/dividas')} className="text-primary text-sm font-semibold hover:underline">Ver todas</button>
+          <button onClick={() => navigate('/dividas')} className="text-primary text-sm font-semibold hover:underline cursor-pointer">Ver todas</button>
         </div>
         <div className="space-y-3">
           {debts.length > 0 ? (
             debts.slice(0, 2).map((debt) => (
               <div 
                 key={debt.id} 
-                className="bg-white rounded-2xl p-4 md:p-6 border border-outline-variant shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 group hover:border-primary transition-all"
+                className="bg-white rounded-2xl p-4 md:p-6 border border-outline-variant shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 group hover:border-primary transition-all cursor-pointer"
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
@@ -183,7 +183,7 @@ export default function Dashboard() {
                   {debt.status === 'atrasado' && (
                     <span className="bg-error-container text-on-error-container text-[10px] font-bold px-2 py-1 rounded tracking-widest">URGENTE</span>
                   )}
-                  <button onClick={() => navigate('/dividas')} className="ml-auto md:ml-0 px-4 py-2 rounded-lg border border-secondary text-secondary font-semibold text-sm hover:bg-secondary hover:text-white transition-colors flex items-center gap-2">
+                  <button onClick={() => navigate('/dividas')} className="ml-auto md:ml-0 px-4 py-2 rounded-lg border border-secondary text-secondary font-semibold text-sm hover:bg-secondary hover:text-white transition-colors flex items-center gap-2 cursor-pointer">
                     Detalhes <ChevronRight size={16} />
                   </button>
                 </div>

@@ -180,14 +180,14 @@ export default function AddDebt() {
           <div className="flex flex-col gap-4">
             <button 
               type="submit"
-              className="w-full bg-primary text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+              className="w-full bg-primary text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3 cursor-pointer"
             >
               <Save size={24} /> {isEditMode ? 'Salvar Alterações' : 'Salvar Dívida'}
             </button>
             <button 
               type="button" 
               onClick={() => navigate(-1)}
-              className="w-full bg-white text-secondary border-2 border-secondary py-4 rounded-2xl font-bold text-lg hover:bg-secondary/5 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+              className="w-full bg-white text-secondary border-2 border-secondary py-4 rounded-2xl font-bold text-lg hover:bg-secondary/5 active:scale-[0.98] transition-all flex items-center justify-center gap-3 cursor-pointer"
             >
               <X size={24} /> Cancelar
             </button>

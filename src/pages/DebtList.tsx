@@ -12,7 +12,7 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, confirmText
         <h3 className="text-xl font-bold text-on-surface mb-2">{title}</h3>
         <p className="text-on-surface-variant mb-8">{message}</p>
         <div className="flex gap-3 justify-end">
-          <button onClick={onCancel} className="px-5 py-2.5 rounded-xl font-bold text-on-surface-variant hover:bg-surface-container transition-colors">
+          <button onClick={onCancel} className="px-5 py-2.5 rounded-xl font-bold text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer">
             {cancelText}
           </button>
           <button onClick={onConfirm} className={cn(
@@ -63,7 +63,7 @@ export default function DebtList() {
           </div>
           <Link 
             to="/adicionar"
-            className="bg-primary-container text-white rounded-xl px-6 py-3 font-semibold shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2"
+            className="bg-primary-container text-white rounded-xl px-6 py-3 font-semibold shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer"
           >
             <Plus size={20} /> Nova Dívida
           </Link>
@@ -128,7 +128,7 @@ export default function DebtList() {
             </div>
             <Link 
               to="/adicionar"
-              className="mt-4 bg-primary text-white rounded-xl px-8 py-3 font-semibold shadow-sm hover:opacity-90 transition-opacity"
+              className="mt-4 bg-primary text-white rounded-xl px-8 py-3 font-semibold shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
             >
               Adicionar Agora
             </Link>
@@ -212,21 +212,21 @@ function DebtGridCard({ debt, onMarkPaid, onDelete }: DebtGridCardProps) {
             <button className="flex-1 border border-outline text-on-surface-variant rounded-lg py-2 text-sm font-semibold hover:bg-surface-container-low transition-colors cursor-not-allowed">
               Comprovante
             </button>
-            <button onClick={() => onDelete(debt.id)} className="px-4 border border-error text-error rounded-lg py-2 text-sm font-semibold hover:bg-error/10 transition-colors" title="Excluir">
+            <button onClick={() => onDelete(debt.id)} className="px-4 border border-error text-error rounded-lg py-2 text-sm font-semibold hover:bg-error/10 transition-colors cursor-pointer" title="Excluir">
               <Trash2 size={18} />
             </button>
           </>
         ) : (
           <>
             <div className="flex gap-2">
-              <button onClick={() => onDelete(debt.id)} className="w-10 flex items-center justify-center border border-error text-error rounded-lg py-2 hover:bg-error/10 transition-colors" title="Excluir">
+              <button onClick={() => onDelete(debt.id)} className="w-10 flex items-center justify-center border border-error text-error rounded-lg py-2 hover:bg-error/10 transition-colors cursor-pointer" title="Excluir">
                 <Trash2 size={18} />
               </button>
-              <Link to={`/editar/${debt.id}`} className="w-10 flex items-center justify-center border border-primary text-primary rounded-lg py-2 hover:bg-primary/10 transition-colors" title="Editar">
+              <Link to={`/editar/${debt.id}`} className="w-10 flex items-center justify-center border border-primary text-primary rounded-lg py-2 hover:bg-primary/10 transition-colors cursor-pointer" title="Editar">
                 <Edit2 size={18} />
               </Link>
             </div>
-            <button onClick={() => onMarkPaid(debt.id)} className="flex-1 bg-primary text-white rounded-lg py-2 text-sm font-semibold hover:opacity-90 transition-opacity">
+            <button onClick={() => onMarkPaid(debt.id)} className="flex-1 bg-primary text-white rounded-lg py-2 text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer">
               Marcar Pago
             </button>
           </>
