@@ -1,20 +1,41 @@
 import { Wallet, CreditCard, AlertTriangle, Calendar, ChevronRight } from 'lucide-react';
 import { useDebts } from '../contexts/DebtContext';
-
 import { formatCurrency, cn } from '../lib/utils';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-
-const evolutionData: any[] = [];
-
-
-const distributionData: any[] = [];
-
-
 import { useNavigate } from 'react-router-dom';
+
+const COLORS = ['#003d9b', '#00687a', '#785900', '#564264', '#005b4b'];
 
 export default function Dashboard() {
   const { debts, summary } = useDebts();
   const navigate = useNavigate();
+
+  // Calculate Distribution Data dynamically
+  const categoryTotals = debts.reduce((acc, debt) => {
+    acc[debt.category] = (acc[debt.category] || 0) + debt.amount;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const totalAmount = Object.values(categoryTotals).reduce((a, b) => a + b, 0);
+  const distributionData = Object.entries(categoryTotals).map(([name, value], index) => ({
+    name,
+    value: totalAmount > 0 ? Math.round((value / totalAmount) * 100) : 0,
+    color: COLORS[index % COLORS.length]
+  })).sort((a, b) => b.value - a.value);
+
+  // Calculate Evolution Data (Simple mock projection for the next 6 months)
+  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  const currentMonth = new Date().getMonth();
+  const evolutionData = Array.from({ length: 6 }).map((_, i) => {
+    const m = (currentMonth + i) % 12;
+    // Mock value based on current debts and random variation for visual effect
+    // In a real app, this would query historical payments.
+    const baseValue = debts.filter(d => d.status !== 'pago').reduce((acc, curr) => acc + curr.amount, 0) / (i + 1);
+    return {
+      month: months[m],
+      value: Math.max(0, baseValue)
+    };
+  });
 
   return (
 

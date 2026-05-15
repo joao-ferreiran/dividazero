@@ -133,7 +133,15 @@ export default function Reports() {
             </div>
             <div>
               <div className="label-numeric text-3xl sm:text-5xl font-bold tracking-tight">
-                {debts.length > 0 ? "Dez 2024" : "---"}
+                {(() => {
+                  const pendingDebts = debts.filter(d => d.status !== 'pago');
+                  if (pendingDebts.length > 0) {
+                    const maxDate = new Date(Math.max(...pendingDebts.map(d => new Date(d.dueDate + 'T12:00:00Z').getTime())));
+                    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                    return `${months[maxDate.getUTCMonth()]} ${maxDate.getUTCFullYear()}`;
+                  }
+                  return debts.length > 0 ? "Livre!" : "---";
+                })()}
               </div>
               <div className="text-[10px] font-bold text-secondary mt-2 uppercase tracking-widest leading-none">Mês Previsto para Liberdade</div>
             </div>
@@ -143,10 +151,27 @@ export default function Reports() {
           <div className="space-y-4 bg-surface-bright p-5 rounded-2xl border border-outline-variant">
             <div className="flex justify-between items-center text-sm">
               <span className="font-semibold text-on-surface-variant">Progresso Global</span>
-              <span className="label-numeric font-bold text-primary">0%</span>
+              <span className="label-numeric font-bold text-primary">
+                {(() => {
+                  const paidDebts = debts.filter(d => d.status === 'pago');
+                  const totalPaid = paidDebts.reduce((acc, curr) => acc + curr.amount, 0);
+                  const totalOwed = debts.reduce((acc, curr) => acc + curr.amount, 0);
+                  if (totalOwed === 0) return '0%';
+                  return `${Math.round((totalPaid / totalOwed) * 100)}%`;
+                })()}
+              </span>
             </div>
             <div className="w-full h-2.5 bg-surface-container-high rounded-full overflow-hidden shadow-inner">
-              <div className="h-full bg-secondary rounded-full shadow-sm" style={{ width: '0%' }} />
+              <div 
+                className="h-full bg-secondary rounded-full shadow-sm transition-all duration-1000" 
+                style={{ width: (() => {
+                  const paidDebts = debts.filter(d => d.status === 'pago');
+                  const totalPaid = paidDebts.reduce((acc, curr) => acc + curr.amount, 0);
+                  const totalOwed = debts.reduce((acc, curr) => acc + curr.amount, 0);
+                  if (totalOwed === 0) return '0%';
+                  return `${Math.round((totalPaid / totalOwed) * 100)}%`;
+                })() }} 
+              />
             </div>
             <p className="text-xs text-on-surface-variant text-center font-medium">
               Faltam <span className="label-numeric font-bold text-on-surface">{formatCurrency(summary.totalOwed)}</span> para o objetivo.

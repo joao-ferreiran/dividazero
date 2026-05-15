@@ -4,11 +4,35 @@ import { formatCurrency, cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 
+function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, confirmText = "Confirmar", cancelText = "Cancelar", type = "danger" }: any) {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl animate-in zoom-in-95 duration-200">
+        <h3 className="text-xl font-bold text-on-surface mb-2">{title}</h3>
+        <p className="text-on-surface-variant mb-8">{message}</p>
+        <div className="flex gap-3 justify-end">
+          <button onClick={onCancel} className="px-5 py-2.5 rounded-xl font-bold text-on-surface-variant hover:bg-surface-container transition-colors">
+            {cancelText}
+          </button>
+          <button onClick={onConfirm} className={cn(
+            "px-5 py-2.5 rounded-xl font-bold text-white transition-colors shadow-sm hover:opacity-90",
+            type === "danger" ? "bg-error" : "bg-primary"
+          )}>
+            {confirmText}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DebtList() {
   const { debts, markAsPaid, deleteDebt } = useDebts();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [modalConfig, setModalConfig] = useState<{isOpen: boolean, type: 'delete' | 'pay', debtId: string, creditor: string} | null>(null);
 
   const filteredDebts = debts.filter(debt => {
     const matchesSearch = debt.creditor.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -17,6 +41,16 @@ export default function DebtList() {
     const matchesCategory = categoryFilter ? debt.category === categoryFilter : true;
     return matchesSearch && matchesStatus && matchesCategory;
   });
+
+  const confirmAction = () => {
+    if (!modalConfig) return;
+    if (modalConfig.type === 'delete') {
+      deleteDebt(modalConfig.debtId);
+    } else if (modalConfig.type === 'pay') {
+      markAsPaid(modalConfig.debtId);
+    }
+    setModalConfig(null);
+  };
 
   return (
     <div className="space-y-8">
@@ -76,7 +110,12 @@ export default function DebtList() {
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredDebts.length > 0 ? (
           filteredDebts.map((debt) => (
-            <DebtGridCard key={debt.id} debt={debt} onMarkPaid={markAsPaid} onDelete={deleteDebt} />
+            <DebtGridCard 
+              key={debt.id} 
+              debt={debt} 
+              onMarkPaid={(id) => setModalConfig({ isOpen: true, type: 'pay', debtId: id, creditor: debt.creditor })} 
+              onDelete={(id) => setModalConfig({ isOpen: true, type: 'delete', debtId: id, creditor: debt.creditor })} 
+            />
           ))
         ) : (
           <div className="col-span-full bg-white rounded-3xl p-10 md:p-20 border border-outline-variant border-dashed text-center flex flex-col items-center gap-4">
@@ -96,6 +135,18 @@ export default function DebtList() {
           </div>
         )}
       </section>
+
+      <ConfirmModal 
+        isOpen={modalConfig?.isOpen}
+        title={modalConfig?.type === 'delete' ? 'Excluir Dívida' : 'Marcar como Pago'}
+        message={modalConfig?.type === 'delete' 
+          ? `Tem certeza que deseja excluir permanentemente a dívida de "${modalConfig.creditor}"?`
+          : `Tem certeza que deseja marcar a dívida de "${modalConfig.creditor}" como paga?`}
+        confirmText={modalConfig?.type === 'delete' ? 'Sim, Excluir' : 'Sim, Marcar Pago'}
+        type={modalConfig?.type === 'delete' ? 'danger' : 'primary'}
+        onConfirm={confirmAction}
+        onCancel={() => setModalConfig(null)}
+      />
     </div>
   );
 }
@@ -109,18 +160,6 @@ interface DebtGridCardProps {
 function DebtGridCard({ debt, onMarkPaid, onDelete }: DebtGridCardProps) {
   const isAtrasado = debt.status === 'atrasado';
   const isPago = debt.status === 'pago';
-
-  const handleDelete = () => {
-    if (window.confirm(`Tem certeza que deseja excluir a dívida de "${debt.creditor}"?`)) {
-      onDelete(debt.id);
-    }
-  };
-
-  const handleMarkPaid = () => {
-    if (window.confirm(`Tem certeza que deseja marcar a dívida de "${debt.creditor}" como paga?`)) {
-      onMarkPaid(debt.id);
-    }
-  };
 
   return (
     <div className={cn(
@@ -173,21 +212,21 @@ function DebtGridCard({ debt, onMarkPaid, onDelete }: DebtGridCardProps) {
             <button className="flex-1 border border-outline text-on-surface-variant rounded-lg py-2 text-sm font-semibold hover:bg-surface-container-low transition-colors cursor-not-allowed">
               Comprovante
             </button>
-            <button onClick={handleDelete} className="px-4 border border-error text-error rounded-lg py-2 text-sm font-semibold hover:bg-error/10 transition-colors" title="Excluir">
+            <button onClick={() => onDelete(debt.id)} className="px-4 border border-error text-error rounded-lg py-2 text-sm font-semibold hover:bg-error/10 transition-colors" title="Excluir">
               <Trash2 size={18} />
             </button>
           </>
         ) : (
           <>
             <div className="flex gap-2">
-              <button onClick={handleDelete} className="w-10 flex items-center justify-center border border-error text-error rounded-lg py-2 hover:bg-error/10 transition-colors" title="Excluir">
+              <button onClick={() => onDelete(debt.id)} className="w-10 flex items-center justify-center border border-error text-error rounded-lg py-2 hover:bg-error/10 transition-colors" title="Excluir">
                 <Trash2 size={18} />
               </button>
               <Link to={`/editar/${debt.id}`} className="w-10 flex items-center justify-center border border-primary text-primary rounded-lg py-2 hover:bg-primary/10 transition-colors" title="Editar">
                 <Edit2 size={18} />
               </Link>
             </div>
-            <button onClick={handleMarkPaid} className="flex-1 bg-primary text-white rounded-lg py-2 text-sm font-semibold hover:opacity-90 transition-opacity">
+            <button onClick={() => onMarkPaid(debt.id)} className="flex-1 bg-primary text-white rounded-lg py-2 text-sm font-semibold hover:opacity-90 transition-opacity">
               Marcar Pago
             </button>
           </>
