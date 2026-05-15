@@ -1,4 +1,5 @@
-import { Wallet, CreditCard, AlertTriangle, Calendar, ChevronRight } from 'lucide-react';
+import { Wallet, CreditCard, AlertTriangle, Calendar, ChevronRight, Edit2, Check, X } from 'lucide-react';
+import { useState } from 'react';
 import { useDebts } from '../contexts/DebtContext';
 import { formatCurrency, cn } from '../lib/utils';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
@@ -7,8 +8,10 @@ import { useNavigate } from 'react-router-dom';
 const COLORS = ['#003d9b', '#00687a', '#785900', '#564264', '#005b4b'];
 
 export default function Dashboard() {
-  const { debts, summary } = useDebts();
+  const { debts, summary, income, updateIncome } = useDebts();
   const navigate = useNavigate();
+  const [isEditingIncome, setIsEditingIncome] = useState(false);
+  const [incomeInput, setIncomeInput] = useState('');
 
   // Calculate Distribution Data dynamically
   const categoryTotals = debts.reduce((acc, debt) => {
@@ -45,17 +48,69 @@ export default function Dashboard() {
     };
   });
 
+  const currentMonthDebts = debts.filter(d => {
+    const dDate = new Date(d.dueDate + 'T12:00:00Z');
+    return dDate.getMonth() === new Date().getMonth() && dDate.getFullYear() === new Date().getFullYear();
+  }).reduce((acc, curr) => acc + curr.amount, 0);
+
+  const saldoLivre = income - currentMonthDebts;
+
+  const handleSaveIncome = async () => {
+    await updateIncome(Number(incomeInput));
+    setIsEditingIncome(false);
+  };
+
   return (
 
     <div className="space-y-8">
       {/* Header Section */}
-      <section>
-        <h1 className="text-3xl font-bold text-on-surface">Visão Geral</h1>
-        <p className="text-on-surface-variant">Acompanhe seu progresso e mantenha suas finanças sob controle.</p>
+      <section className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-on-surface">Visão Geral</h1>
+          <p className="text-on-surface-variant">Acompanhe seu progresso e mantenha suas finanças sob controle.</p>
+        </div>
+        <div className="bg-surface-bright border border-outline-variant rounded-xl p-3 flex items-center gap-3">
+          <div className="text-sm font-bold text-on-surface-variant uppercase tracking-wider">Renda Fixa</div>
+          {isEditingIncome ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={incomeInput}
+                onChange={(e) => setIncomeInput(e.target.value)}
+                placeholder="R$ 0.00"
+                className="w-24 px-2 py-1 border border-primary rounded outline-none text-sm font-bold"
+                autoFocus
+              />
+              <button onClick={handleSaveIncome} className="text-primary hover:bg-primary/10 p-1 rounded cursor-pointer">
+                <Check size={18} />
+              </button>
+              <button onClick={() => setIsEditingIncome(false)} className="text-error hover:bg-error/10 p-1 rounded cursor-pointer">
+                <X size={18} />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-lg label-numeric text-primary">{formatCurrency(income)}</span>
+              <button 
+                onClick={() => { setIncomeInput(income.toString()); setIsEditingIncome(true); }}
+                className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
+              >
+                <Edit2 size={16} />
+              </button>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Summary Cards */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <SummaryCard 
+          title="Saldo Livre (Mês)" 
+          value={formatCurrency(saldoLivre)} 
+          badge={saldoLivre < 0 ? "Orçamento Estourado" : null}
+          variant={saldoLivre < 0 ? "error" : "primary"}
+          icon={<Wallet className="text-on-surface-variant" size={20} />}
+        />
         <SummaryCard 
           title="Total Devido" 
           value={formatCurrency(summary.totalOwed)} 

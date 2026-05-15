@@ -11,6 +11,8 @@ interface DebtContextType {
   deleteDebt: (id: string) => void;
   markAsPaid: (id: string) => void;
   summary: SummaryData;
+  income: number;
+  updateIncome: (amount: number) => Promise<void>;
 }
 
 const DebtContext = createContext<DebtContextType | undefined>(undefined);
@@ -26,16 +28,42 @@ export const useDebts = () => {
 export const DebtProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
   const [debts, setDebts] = useState<Debt[]>([]);
+  const [income, setIncome] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
       fetchDebts();
+      fetchProfile();
     } else {
       setDebts([]);
+      setIncome(0);
       setLoading(false);
     }
   }, [user]);
+
+  const fetchProfile = async () => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('monthly_income')
+      .eq('id', user.id)
+      .single();
+    if (!error && data) {
+      setIncome(Number(data.monthly_income));
+    }
+  };
+
+  const updateIncome = async (amount: number) => {
+    if (!user) return;
+    const { error } = await supabase
+      .from('profiles')
+      .update({ monthly_income: amount })
+      .eq('id', user.id);
+    if (!error) {
+      setIncome(amount);
+    }
+  };
 
   const fetchDebts = async () => {
     setLoading(true);
@@ -215,7 +243,7 @@ export const DebtProvider = ({ children }: { children: ReactNode }) => {
   const summary = useMemo(() => calculateSummary(), [debts]);
 
   return (
-    <DebtContext.Provider value={{ debts, loading, addDebt, updateDebt, deleteDebt, markAsPaid, summary }}>
+    <DebtContext.Provider value={{ debts, loading, addDebt, updateDebt, deleteDebt, markAsPaid, summary, income, updateIncome }}>
       {children}
     </DebtContext.Provider>
   );
