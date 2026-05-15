@@ -27,11 +27,11 @@ export default function Dashboard() {
     color: COLORS[index % COLORS.length]
   })).sort((a, b) => b.value - a.value);
 
-  // Calculate Evolution Data (Last 6 months)
+  // Calculate Evolution Data (Next 6 months)
   const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
   const evolutionData = Array.from({ length: 6 }).map((_, i) => {
     const date = new Date();
-    date.setMonth(date.getMonth() - (5 - i));
+    date.setMonth(date.getMonth() + i);
     const targetMonth = date.getMonth();
     const targetYear = date.getFullYear();
 
@@ -74,14 +74,21 @@ export default function Dashboard() {
           {isEditingIncome ? (
             <div className="flex items-center gap-2">
               <input
-                type="number"
+                type="text"
                 value={incomeInput}
                 onChange={(e) => setIncomeInput(e.target.value)}
-                placeholder="R$ 0.00"
+                placeholder="Ex: 1620,00"
                 className="w-24 px-2 py-1 border border-primary rounded outline-none text-sm font-bold"
                 autoFocus
               />
-              <button onClick={handleSaveIncome} className="text-primary hover:bg-primary/10 p-1 rounded cursor-pointer">
+              <button onClick={() => {
+                const normalized = incomeInput.replace(/\./g, '').replace(',', '.');
+                const val = Number(normalized);
+                if (!isNaN(val)) {
+                  updateIncome(val);
+                  setIsEditingIncome(false);
+                }
+              }} className="text-primary hover:bg-primary/10 p-1 rounded cursor-pointer">
                 <Check size={18} />
               </button>
               <button onClick={() => setIsEditingIncome(false)} className="text-error hover:bg-error/10 p-1 rounded cursor-pointer">
@@ -177,7 +184,7 @@ export default function Dashboard() {
         <div className="lg:col-span-12 xl:col-span-7 bg-white rounded-2xl p-6 border border-outline-variant shadow-sm">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold">Evolução de Pagamentos</h2>
-            <span className="text-sm text-on-surface-variant">Últimos 6 meses</span>
+            <span className="text-sm text-on-surface-variant">Próximos 6 meses</span>
           </div>
           <div className="h-[200px] sm:h-[240px] w-full overflow-x-auto">
             <ResponsiveContainer width="100%" height="100%">
