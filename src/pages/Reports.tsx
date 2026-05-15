@@ -8,7 +8,27 @@ export default function Reports() {
   const { debts, summary } = useDebts();
   const [showAllCreditors, setShowAllCreditors] = useState(false);
 
-  const reportData: any[] = [];
+  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  const reportData = Array.from({ length: 6 }).map((_, i) => {
+    const date = new Date();
+    date.setMonth(date.getMonth() - (5 - i));
+    const targetMonth = date.getMonth();
+    const targetYear = date.getFullYear();
+
+    const monthDebts = debts.filter(d => {
+      const dDate = new Date(d.dueDate + 'T12:00:00Z');
+      return dDate.getMonth() === targetMonth && dDate.getFullYear() === targetYear;
+    });
+
+    const dividaTotal = monthDebts.reduce((acc, curr) => acc + curr.amount, 0);
+    const pagoTotal = monthDebts.filter(d => d.status === 'pago').reduce((acc, curr) => acc + curr.amount, 0);
+
+    return {
+      month: months[targetMonth],
+      divida: dividaTotal,
+      pago: pagoTotal
+    };
+  });
 
   const creditorTotals = debts.reduce((acc, debt) => {
     if (debt.status !== 'pago') {

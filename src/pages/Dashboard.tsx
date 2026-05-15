@@ -24,17 +24,24 @@ export default function Dashboard() {
     color: COLORS[index % COLORS.length]
   })).sort((a, b) => b.value - a.value);
 
-  // Calculate Evolution Data (Simple mock projection for the next 6 months)
+  // Calculate Evolution Data (Last 6 months)
   const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-  const currentMonth = new Date().getMonth();
   const evolutionData = Array.from({ length: 6 }).map((_, i) => {
-    const m = (currentMonth + i) % 12;
-    // Mock value based on current debts and random variation for visual effect
-    // In a real app, this would query historical payments.
-    const baseValue = debts.filter(d => d.status !== 'pago').reduce((acc, curr) => acc + curr.amount, 0) / (i + 1);
+    const date = new Date();
+    date.setMonth(date.getMonth() - (5 - i));
+    const targetMonth = date.getMonth();
+    const targetYear = date.getFullYear();
+
+    const monthDebts = debts.filter(d => {
+      const dDate = new Date(d.dueDate + 'T12:00:00Z');
+      return dDate.getMonth() === targetMonth && dDate.getFullYear() === targetYear;
+    });
+
+    const totalValue = monthDebts.reduce((acc, curr) => acc + curr.amount, 0);
+
     return {
-      month: months[m],
-      value: Math.max(0, baseValue)
+      month: months[targetMonth],
+      value: totalValue
     };
   });
 
