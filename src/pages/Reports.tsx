@@ -118,7 +118,7 @@ export default function Reports() {
         </div>
 
         {/* Projection Card */}
-        <div className="lg:col-span-12 xl:col-span-5 bg-white rounded-2xl border border-outline-variant shadow-sm p-4 sm:p-6 flex flex-col justify-between">
+        <div className="lg:col-span-12 xl:col-span-5 bg-white rounded-2xl border border-outline-variant shadow-sm p-4 sm:p-6 flex flex-col self-start h-fit">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <TrendingDown className="text-secondary" />
