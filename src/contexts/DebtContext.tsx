@@ -121,6 +121,9 @@ export const DebtProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const markAsPaid = async (id: string) => {
+    const debt = debts.find(d => d.id === id);
+    if (!debt) return;
+
     const today = new Date();
     const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     const updates = { status: 'pago', paidAt: formattedDate };
@@ -135,12 +138,43 @@ export const DebtProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    setDebts(prev => prev.map(debt => {
-      if (debt.id === id) {
-        return { ...debt, ...updates } as Debt;
+    setDebts(prev => prev.map(d => {
+      if (d.id === id) {
+        return { ...d, ...updates } as Debt;
       }
-      return debt;
+      return d;
     }));
+
+    // Auto-advance installments if applicable
+    const match = debt.description?.match(/Parcelas:\s*(\d+)\/(\d+)/i);
+    if (match) {
+      const current = parseInt(match[1]);
+      const total = parseInt(match[2]);
+      if (current < total) {
+        const newDescription = debt.description.replace(/Parcelas:\s*\d+\/\d+/i, `Parcelas: ${current + 1}/${total}`);
+        
+        const [year, month, day] = debt.dueDate.split('-');
+        let nextMonth = parseInt(month) + 1;
+        let nextYear = parseInt(year);
+        if (nextMonth > 12) {
+          nextMonth = 1;
+          nextYear += 1;
+        }
+        
+        const daysInNextMonth = new Date(nextYear, nextMonth, 0).getDate();
+        const nextDay = Math.min(parseInt(day), daysInNextMonth);
+        const nextDueDate = `${nextYear}-${String(nextMonth).padStart(2, '0')}-${String(nextDay).padStart(2, '0')}`;
+
+        await addDebt({
+          creditor: debt.creditor,
+          amount: debt.amount,
+          category: debt.category,
+          dueDate: nextDueDate,
+          description: newDescription,
+          status: 'pendente' as DebtStatus
+        });
+      }
+    }
   };
 
   const calculateSummary = (): SummaryData => {
