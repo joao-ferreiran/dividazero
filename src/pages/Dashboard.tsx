@@ -12,7 +12,8 @@ export default function Dashboard() {
 
   // Calculate Distribution Data dynamically
   const categoryTotals = debts.reduce((acc, debt) => {
-    acc[debt.category] = (acc[debt.category] || 0) + debt.amount;
+    const cat = debt.category || 'Outros';
+    acc[cat] = (acc[cat] || 0) + (debt.amount || 0);
     return acc;
   }, {} as Record<string, number>);
 
@@ -159,7 +160,7 @@ export default function Dashboard() {
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
-                    {debt.category.includes('Cartão') ? <CreditCard size={24} /> : <Wallet size={24} />}
+                    {(debt.category || '').includes('Cartão') ? <CreditCard size={24} /> : <Wallet size={24} />}
                   </div>
                   <div>
                     <h3 className="text-lg font-bold">{debt.creditor}</h3>

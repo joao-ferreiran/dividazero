@@ -35,7 +35,7 @@ export default function DebtList() {
   const [modalConfig, setModalConfig] = useState<{isOpen: boolean, type: 'delete' | 'pay', debtId: string, creditor: string} | null>(null);
 
   const filteredDebts = debts.filter(debt => {
-    const matchesSearch = debt.creditor.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const matchesSearch = (debt.creditor || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
                           (debt.description || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter ? debt.status === statusFilter : true;
     const matchesCategory = categoryFilter ? debt.category === categoryFilter : true;
@@ -168,14 +168,14 @@ function DebtGridCard({ debt, onMarkPaid, onDelete }: DebtGridCardProps) {
     )}>
       <div className="flex justify-between items-start">
         <div>
-          <h3 className={cn("text-lg font-bold", isPago && "line-through")}>{debt.creditor}</h3>
+          <h3 className={cn("text-lg font-bold", isPago && "line-through")}>{debt.creditor || 'Sem Credor'}</h3>
           <p className="text-sm text-on-surface-variant">{debt.description}</p>
         </div>
         <div className={cn(
           "px-2 py-0.5 rounded text-[10px] font-bold tracking-widest",
           isAtrasado ? "bg-error/10 text-error" : isPago ? "bg-secondary/10 text-secondary" : "bg-primary/10 text-primary"
         )}>
-          {debt.status.toUpperCase()}
+          {(debt.status || 'pendente').toUpperCase()}
         </div>
       </div>
 
