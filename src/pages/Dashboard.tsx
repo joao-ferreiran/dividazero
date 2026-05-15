@@ -96,7 +96,7 @@ export default function Dashboard() {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip formatter={(value: number) => [`${value}%`, 'Porcentagem']} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -131,6 +131,7 @@ export default function Dashboard() {
                 <Tooltip 
                   cursor={{ fill: 'transparent' }}
                   contentStyle={{ borderRadius: '8px', border: '1px solid #C3C6D6' }}
+                  formatter={(value: number) => [formatCurrency(value), 'Valor']}
                 />
                 <Bar 
                   dataKey="value" 

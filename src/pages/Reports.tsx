@@ -94,6 +94,7 @@ export default function Reports() {
                 />
                 <Tooltip 
                   contentStyle={{ borderRadius: '12px', border: '1px solid #C3C6D6', padding: '12px' }}
+                  formatter={(value: number, name: string) => [formatCurrency(value), name]}
                 />
                 <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
                 <Line 
