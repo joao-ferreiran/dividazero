@@ -1,10 +1,12 @@
-import { Download, FileText, TrendingDown, Calendar, ArrowRight } from 'lucide-react';
+import { Download, FileText, TrendingDown, Calendar, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState } from 'react';
 import { useDebts } from '../contexts/DebtContext';
 import { formatCurrency, cn } from '../lib/utils';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 export default function Reports() {
   const { debts, summary } = useDebts();
+  const [showAllCreditors, setShowAllCreditors] = useState(false);
 
   const reportData: any[] = [];
 
@@ -198,7 +200,7 @@ export default function Reports() {
           <h2 className="text-xl font-bold mb-6">Maiores Credores</h2>
           <div className="flex-1 space-y-4">
             {dynamicCreditors.length > 0 ? (
-              dynamicCreditors.map((creditor, i) => (
+              (showAllCreditors ? dynamicCreditors : dynamicCreditors.slice(0, 3)).map((creditor, i, arr) => (
                 <div key={creditor.name} className="flex flex-col gap-4">
                   <div className="flex items-center justify-between p-3 hover:bg-surface-bright rounded-2xl transition-all group">
                     <div className="flex items-center gap-4">
@@ -223,7 +225,7 @@ export default function Reports() {
                       </div>
                     </div>
                   </div>
-                  {i < dynamicCreditors.length - 1 && <div className="h-px bg-outline-variant/30 w-full" />}
+                  {i < arr.length - 1 && <div className="h-px bg-outline-variant/30 w-full" />}
                 </div>
               ))
             ) : (
@@ -232,6 +234,19 @@ export default function Reports() {
               </div>
             )}
           </div>
+          
+          {dynamicCreditors.length > 3 && (
+            <button 
+              onClick={() => setShowAllCreditors(!showAllCreditors)}
+              className="mt-6 py-3 w-full border border-secondary text-secondary font-bold text-sm rounded-xl hover:bg-secondary hover:text-white transition-all flex items-center justify-center gap-2"
+            >
+              {showAllCreditors ? (
+                <>Ver Menos <ChevronUp size={18} /></>
+              ) : (
+                <>Ver Mais {dynamicCreditors.length - 3} Credores <ChevronDown size={18} /></>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>
