@@ -202,7 +202,7 @@ export default function Reports() {
             {dynamicCreditors.length > 0 ? (
               (showAllCreditors ? dynamicCreditors : dynamicCreditors.slice(0, 3)).map((creditor, i, arr) => (
                 <div key={creditor.name} className="flex flex-col gap-4">
-                  <div className="flex items-center justify-between p-3 hover:bg-surface-bright rounded-2xl transition-all group">
+                  <div className="flex items-center justify-between p-3 hover:bg-surface-bright rounded-2xl transition-all group cursor-pointer">
                     <div className="flex items-center gap-4">
                       <div 
                         className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl shadow-sm border border-black/5" 
@@ -238,7 +238,7 @@ export default function Reports() {
           {dynamicCreditors.length > 3 && (
             <button 
               onClick={() => setShowAllCreditors(!showAllCreditors)}
-              className="mt-6 py-3 w-full border border-secondary text-secondary font-bold text-sm rounded-xl hover:bg-secondary hover:text-white transition-all flex items-center justify-center gap-2"
+              className="mt-6 py-3 w-full border border-secondary text-secondary font-bold text-sm rounded-xl hover:bg-secondary hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {showAllCreditors ? (
                 <>Ver Menos <ChevronUp size={18} /></>
