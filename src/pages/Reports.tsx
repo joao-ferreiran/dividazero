@@ -219,13 +219,6 @@ export default function Reports() {
               </div>
             )}
           </div>
-          <button 
-            disabled={dynamicCreditors.length === 0}
-            className="mt-8 py-3 w-full border border-primary text-primary font-bold text-sm rounded-xl hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Ver Análise Completa <ArrowRight size={18} />
-          </button>
-
         </div>
       </div>
     </div>
