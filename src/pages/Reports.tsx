@@ -136,9 +136,22 @@ export default function Reports() {
                 {(() => {
                   const pendingDebts = debts.filter(d => d.status !== 'pago');
                   if (pendingDebts.length > 0) {
-                    const maxDate = new Date(Math.max(...pendingDebts.map(d => new Date(d.dueDate + 'T12:00:00Z').getTime())));
+                    let maxTime = 0;
+                    pendingDebts.forEach(d => {
+                      let date = new Date(d.dueDate + 'T12:00:00Z');
+                      const match = (d.description || '').match(/Parcelas:\s*(\d+)\/(\d+)/i);
+                      if (match) {
+                        const current = parseInt(match[1]);
+                        const total = parseInt(match[2]);
+                        if (total > current) {
+                          date.setMonth(date.getMonth() + (total - current));
+                        }
+                      }
+                      if (date.getTime() > maxTime) maxTime = date.getTime();
+                    });
+                    const maxDate = new Date(maxTime);
                     const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-                    return `${months[maxDate.getUTCMonth()]} ${maxDate.getUTCFullYear()}`;
+                    return `${months[maxDate.getMonth()]} ${maxDate.getFullYear()}`;
                   }
                   return debts.length > 0 ? "Livre!" : "---";
                 })()}
