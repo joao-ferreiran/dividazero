@@ -31,6 +31,20 @@ export default function Reports() {
     })
     .sort((a, b) => b.amount - a.amount);
 
+  const handleExportCSV = () => {
+    const header = ['Credor', 'Valor', 'Vencimento', 'Status', 'Categoria'];
+    const rows = debts.map(d => [d.creditor, d.amount, d.dueDate, d.status, d.category]);
+    const csvContent = [header, ...rows].map(e => e.join(",")).join("\\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "dividas.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
 
     <div className="space-y-8">
@@ -41,11 +55,11 @@ export default function Reports() {
           <p className="text-on-surface-variant mt-2">Análise detalhada da sua evolução financeira e previsões de quitação.</p>
         </div>
         <div className="flex gap-3 w-full md:w-auto">
-          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 border border-secondary text-secondary rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-secondary-container hover:text-on-secondary-container transition-colors">
+          <button onClick={handleExportCSV} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 border border-secondary text-secondary rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-secondary-container hover:text-on-secondary-container transition-colors">
             <Download size={18} /> CSV
           </button>
-          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-primary-container transition-colors shadow-sm">
-            <FileText size={18} /> PDF
+          <button onClick={() => window.print()} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-primary-container transition-colors shadow-sm">
+            <FileText size={18} /> Imprimir
           </button>
         </div>
       </div>

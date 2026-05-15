@@ -10,8 +10,11 @@ const evolutionData: any[] = [];
 const distributionData: any[] = [];
 
 
+import { useNavigate } from 'react-router-dom';
+
 export default function Dashboard() {
   const { debts, summary } = useDebts();
+  const navigate = useNavigate();
 
   return (
 
@@ -124,7 +127,7 @@ export default function Dashboard() {
       <section className="space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold">Dívidas Próximas do Vencimento</h2>
-          <button className="text-primary text-sm font-semibold hover:underline">Ver todas</button>
+          <button onClick={() => navigate('/dividas')} className="text-primary text-sm font-semibold hover:underline">Ver todas</button>
         </div>
         <div className="space-y-3">
           {debts.length > 0 ? (
@@ -158,7 +161,7 @@ export default function Dashboard() {
                   {debt.status === 'atrasado' && (
                     <span className="bg-error-container text-on-error-container text-[10px] font-bold px-2 py-1 rounded tracking-widest">URGENTE</span>
                   )}
-                  <button className="ml-auto md:ml-0 px-4 py-2 rounded-lg border border-secondary text-secondary font-semibold text-sm hover:bg-secondary hover:text-white transition-colors flex items-center gap-2">
+                  <button onClick={() => navigate('/dividas')} className="ml-auto md:ml-0 px-4 py-2 rounded-lg border border-secondary text-secondary font-semibold text-sm hover:bg-secondary hover:text-white transition-colors flex items-center gap-2">
                     Detalhes <ChevronRight size={16} />
                   </button>
                 </div>
