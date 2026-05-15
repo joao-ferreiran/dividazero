@@ -140,8 +140,8 @@ export default function DebtList() {
         isOpen={modalConfig?.isOpen}
         title={modalConfig?.type === 'delete' ? 'Excluir Dívida' : 'Marcar como Pago'}
         message={modalConfig?.type === 'delete' 
-          ? `Tem certeza que deseja excluir permanentemente a dívida de "${modalConfig.creditor}"?`
-          : `Tem certeza que deseja marcar a dívida de "${modalConfig.creditor}" como paga?`}
+          ? `Tem certeza que deseja excluir permanentemente a dívida de "${modalConfig?.creditor}"?`
+          : `Tem certeza que deseja marcar a dívida de "${modalConfig?.creditor}" como paga?`}
         confirmText={modalConfig?.type === 'delete' ? 'Sim, Excluir' : 'Sim, Marcar Pago'}
         type={modalConfig?.type === 'delete' ? 'danger' : 'primary'}
         onConfirm={confirmAction}
