@@ -1,4 +1,4 @@
-import { Plus, Search, Calendar, ChevronRight, CheckCircle2, Trash2 } from 'lucide-react';
+import { Plus, Search, Calendar, ChevronRight, CheckCircle2, Trash2, Edit2 } from 'lucide-react';
 import { useDebts } from '../contexts/DebtContext';
 import { formatCurrency, cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
@@ -19,7 +19,6 @@ export default function DebtList() {
   });
 
   return (
-
     <div className="space-y-8">
       {/* Header & Controls */}
       <section className="flex flex-col gap-6">
@@ -71,7 +70,6 @@ export default function DebtList() {
               <option value="Contas Fixas">Contas Fixas</option>
             </select>
           </div>
-
         </div>
       </section>
 
@@ -98,7 +96,6 @@ export default function DebtList() {
           </div>
         )}
       </section>
-
     </div>
   );
 }
@@ -116,6 +113,12 @@ function DebtGridCard({ debt, onMarkPaid, onDelete }: DebtGridCardProps) {
   const handleDelete = () => {
     if (window.confirm(`Tem certeza que deseja excluir a dívida de "${debt.creditor}"?`)) {
       onDelete(debt.id);
+    }
+  };
+
+  const handleMarkPaid = () => {
+    if (window.confirm(`Tem certeza que deseja marcar a dívida de "${debt.creditor}" como paga?`)) {
+      onMarkPaid(debt.id);
     }
   };
 
@@ -164,36 +167,27 @@ function DebtGridCard({ debt, onMarkPaid, onDelete }: DebtGridCardProps) {
         </span>
       </div>
 
-      {debt.installments && !isPago && (
-        <div className="space-y-1.5 mt-2">
-          <div className="w-full bg-surface-container-high rounded-full h-1.5 overflow-hidden">
-            <div 
-              className="bg-secondary h-full rounded-full" 
-              style={{ width: `${(debt.installments.current / debt.installments.total) * 100}%` }} 
-            />
-          </div>
-          <p className="text-[10px] text-on-surface-variant text-right font-bold">
-            {Math.round((debt.installments.current / debt.installments.total) * 100)}% PAGO
-          </p>
-        </div>
-      )}
-
       <div className="pt-4 border-t border-outline-variant flex justify-between items-center gap-2">
         {isPago ? (
           <>
             <button className="flex-1 border border-outline text-on-surface-variant rounded-lg py-2 text-sm font-semibold hover:bg-surface-container-low transition-colors cursor-not-allowed">
               Comprovante
             </button>
-            <button onClick={handleDelete} className="px-4 border border-error text-error rounded-lg py-2 text-sm font-semibold hover:bg-error/10 transition-colors">
+            <button onClick={handleDelete} className="px-4 border border-error text-error rounded-lg py-2 text-sm font-semibold hover:bg-error/10 transition-colors" title="Excluir">
               <Trash2 size={18} />
             </button>
           </>
         ) : (
           <>
-            <button onClick={handleDelete} className="w-12 flex items-center justify-center border border-error text-error rounded-lg py-2 hover:bg-error/10 transition-colors">
-              <Trash2 size={18} />
-            </button>
-            <button onClick={() => onMarkPaid(debt.id)} className="flex-1 bg-primary text-white rounded-lg py-2 text-sm font-semibold hover:opacity-90 transition-opacity">
+            <div className="flex gap-2">
+              <button onClick={handleDelete} className="w-10 flex items-center justify-center border border-error text-error rounded-lg py-2 hover:bg-error/10 transition-colors" title="Excluir">
+                <Trash2 size={18} />
+              </button>
+              <Link to={`/editar/${debt.id}`} className="w-10 flex items-center justify-center border border-primary text-primary rounded-lg py-2 hover:bg-primary/10 transition-colors" title="Editar">
+                <Edit2 size={18} />
+              </Link>
+            </div>
+            <button onClick={handleMarkPaid} className="flex-1 bg-primary text-white rounded-lg py-2 text-sm font-semibold hover:opacity-90 transition-opacity">
               Marcar Pago
             </button>
           </>

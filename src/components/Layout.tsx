@@ -20,7 +20,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="fixed top-0 w-full z-50 bg-white border-b border-outline-variant h-16 flex items-center px-4 md:px-8 justify-between">
+      <header className="print:hidden fixed top-0 w-full z-50 bg-white border-b border-outline-variant h-16 flex items-center px-4 md:px-8 justify-between">
         <div className="flex items-center gap-8">
           <Link to="/" className="text-primary font-bold text-2xl tracking-tight">
             DívidaZero
@@ -63,12 +63,12 @@ export default function Layout({ children }: { children: ReactNode }) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 pt-20 pb-24 md:pt-24 md:pb-8 container mx-auto px-4 max-w-[1200px]">
+      <main className="flex-1 pt-20 pb-24 md:pt-24 md:pb-8 container mx-auto px-4 max-w-[1200px] print:pt-0 print:pb-0">
         {children}
       </main>
 
       {/* Bottom Nav (Mobile) */}
-      <nav className="fixed bottom-0 left-0 right-0 h-20 bg-white border-t border-outline-variant md:hidden flex justify-around items-center px-2 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom)', boxShadow: '0 -2px 10px rgba(0,0,0,0.05)' }}>
+      <nav className="print:hidden fixed bottom-0 left-0 right-0 h-20 bg-white border-t border-outline-variant md:hidden flex justify-around items-center px-2 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom)', boxShadow: '0 -2px 10px rgba(0,0,0,0.05)' }}>
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;

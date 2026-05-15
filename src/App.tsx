@@ -34,6 +34,7 @@ function ProtectedRoutes() {
           <Route path="/dividas" element={<DebtList />} />
           <Route path="/relatorios" element={<Reports />} />
           <Route path="/adicionar" element={<AddDebt />} />
+          <Route path="/editar/:id" element={<AddDebt />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>

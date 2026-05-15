@@ -1,12 +1,13 @@
 import { FileText, Save, X, Info } from 'lucide-react';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useDebts } from '../contexts/DebtContext';
 import { DebtStatus } from '../types';
 
 export default function AddDebt() {
   const navigate = useNavigate();
-  const { addDebt } = useDebts();
+  const { id } = useParams<{ id: string }>();
+  const { debts, addDebt, updateDebt } = useDebts();
   
   const [creditor, setCreditor] = useState('');
   const [amount, setAmount] = useState('');
@@ -15,6 +16,30 @@ export default function AddDebt() {
   const [installments, setInstallments] = useState('');
   const [description, setDescription] = useState('');
 
+  const isEditMode = !!id;
+
+  useEffect(() => {
+    if (isEditMode) {
+      const debtToEdit = debts.find(d => d.id === id);
+      if (debtToEdit) {
+        setCreditor(debtToEdit.creditor);
+        setAmount(debtToEdit.amount.toString());
+        setCategory(debtToEdit.category);
+        setDueDate(debtToEdit.dueDate);
+        
+        let desc = debtToEdit.description || '';
+        const match = desc.match(/Parcelas:\s*(\d+\/\d+)/i);
+        if (match) {
+          setInstallments(match[1]);
+          desc = desc.replace(/Parcelas:\s*\d+\/\d+/i, '').trim();
+        }
+        setDescription(desc);
+      } else {
+        navigate('/dividas');
+      }
+    }
+  }, [id, debts, isEditMode, navigate]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!creditor || !amount || !category || !dueDate) {
@@ -22,19 +47,28 @@ export default function AddDebt() {
       return;
     }
 
-    // Append installments to description if provided
     const finalDescription = installments 
       ? `Parcelas: ${installments}${description ? '\n' + description : ''}`
       : description;
 
-    addDebt({
-      creditor,
-      amount: parseFloat(amount),
-      category,
-      dueDate,
-      description: finalDescription,
-      status: 'pendente' as DebtStatus
-    });
+    if (isEditMode) {
+      updateDebt(id!, {
+        creditor,
+        amount: parseFloat(amount),
+        category,
+        dueDate,
+        description: finalDescription
+      });
+    } else {
+      addDebt({
+        creditor,
+        amount: parseFloat(amount),
+        category,
+        dueDate,
+        description: finalDescription,
+        status: 'pendente' as DebtStatus
+      });
+    }
 
     navigate('/dividas');
   };
@@ -42,7 +76,7 @@ export default function AddDebt() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="mb-8">
-        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Adicionar Nova Dívida</h1>
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">{isEditMode ? 'Editar Dívida' : 'Adicionar Nova Dívida'}</h1>
         <p className="text-on-surface-variant text-lg mt-2">Preencha os detalhes abaixo para registrar um novo compromisso financeiro.</p>
       </div>
 
@@ -148,7 +182,7 @@ export default function AddDebt() {
               type="submit"
               className="w-full bg-primary text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
             >
-              <Save size={24} /> Salvar Dívida
+              <Save size={24} /> {isEditMode ? 'Salvar Alterações' : 'Salvar Dívida'}
             </button>
             <button 
               type="button" 

@@ -54,7 +54,7 @@ export default function Reports() {
           <h1 className="text-3xl font-bold">Relatórios</h1>
           <p className="text-on-surface-variant mt-2">Análise detalhada da sua evolução financeira e previsões de quitação.</p>
         </div>
-        <div className="flex gap-3 w-full md:w-auto">
+        <div className="flex gap-3 w-full md:w-auto print:hidden">
           <button onClick={handleExportCSV} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 border border-secondary text-secondary rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-secondary-container hover:text-on-secondary-container transition-colors">
             <Download size={18} /> CSV
           </button>
