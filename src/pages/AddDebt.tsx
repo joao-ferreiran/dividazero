@@ -1,6 +1,5 @@
-import { FileText, Save, X, Calendar, Flag, Info, ChevronUp, ChevronDown, BellRing } from 'lucide-react';
+import { FileText, Save, X, Info } from 'lucide-react';
 import { useState } from 'react';
-import { cn } from '../lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useDebts } from '../contexts/DebtContext';
 import { DebtStatus } from '../types';
@@ -9,7 +8,11 @@ export default function AddDebt() {
   const navigate = useNavigate();
   const { addDebt } = useDebts();
   
+  const [creditor, setCreditor] = useState('');
+  const [amount, setAmount] = useState('');
+  const [category, setCategory] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [installments, setInstallments] = useState('');
   const [description, setDescription] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -19,12 +22,17 @@ export default function AddDebt() {
       return;
     }
 
+    // Append installments to description if provided
+    const finalDescription = installments 
+      ? `Parcelas: ${installments}${description ? '\n' + description : ''}`
+      : description;
+
     addDebt({
       creditor,
       amount: parseFloat(amount),
       category,
       dueDate,
-      description,
+      description: finalDescription,
       status: 'pendente' as DebtStatus
     });
 
@@ -32,7 +40,6 @@ export default function AddDebt() {
   };
 
   return (
-
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="mb-8">
         <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Adicionar Nova Dívida</h1>
@@ -40,7 +47,6 @@ export default function AddDebt() {
       </div>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-
         {/* Left Column: Primary Details */}
         <div className="xl:col-span-8 space-y-6">
           {/* Main Info */}
@@ -62,9 +68,9 @@ export default function AddDebt() {
                   required
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-bold text-on-surface-variant" htmlFor="amount">Valor Total *</label>
+                  <label className="text-sm font-bold text-on-surface-variant" htmlFor="amount">Valor da Parcela ou Total *</label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 label-numeric font-bold text-on-surface-variant">R$</span>
                     <input 
@@ -78,6 +84,17 @@ export default function AddDebt() {
                       required
                     />
                   </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-bold text-on-surface-variant" htmlFor="installments">Parcelas (Opcional)</label>
+                  <input 
+                    id="installments"
+                    value={installments}
+                    onChange={(e) => setInstallments(e.target.value)}
+                    className="px-4 py-3.5 bg-surface border border-outline-variant rounded-xl focus:border-primary outline-none transition-all placeholder:text-outline"
+                    placeholder="Ex: 3/12"
+                    type="text" 
+                  />
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-bold text-on-surface-variant" htmlFor="category">Categoria *</label>
@@ -108,9 +125,6 @@ export default function AddDebt() {
                 </div>
               </div>
             </div>
-
-          </section>
-
           </section>
 
           {/* Observations */}
@@ -129,7 +143,6 @@ export default function AddDebt() {
         </div>
 
         <div className="xl:col-span-4 space-y-6 xl:sticky xl:top-24">
-
           <div className="flex flex-col gap-4">
             <button 
               type="submit"
