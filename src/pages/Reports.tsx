@@ -56,7 +56,7 @@ export default function Reports() {
   const handleExportCSV = () => {
     const header = ['Credor', 'Valor', 'Vencimento', 'Status', 'Categoria'];
     const rows = debts.map(d => [d.creditor, d.amount, d.dueDate, d.status, d.category]);
-    const csvContent = [header, ...rows].map(e => e.join(",")).join("\\n");
+    const csvContent = [header, ...rows].map(e => e.join(",")).join("\n");
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -92,10 +92,7 @@ export default function Reports() {
         <div className="lg:col-span-12 bg-white rounded-2xl border border-outline-variant shadow-sm p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
             <h2 className="text-xl font-bold">Evolução: Dívidas vs Pagamentos</h2>
-            <select className="bg-surface border border-outline-variant rounded-xl text-sm py-1.5 px-3 focus:border-primary outline-none">
-              <option>Este Ano</option>
-              <option>Últimos 6 Meses</option>
-            </select>
+            <span className="text-sm text-on-surface-variant">Últimos 6 meses</span>
           </div>
           <div className="h-[250px] sm:h-[350px] w-full overflow-x-auto">
             <ResponsiveContainer width="100%" height="100%">

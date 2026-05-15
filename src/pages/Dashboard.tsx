@@ -55,10 +55,7 @@ export default function Dashboard() {
 
   const saldoLivre = income - currentMonthDebts;
 
-  const handleSaveIncome = async () => {
-    await updateIncome(Number(incomeInput));
-    setIsEditingIncome(false);
-  };
+  const paidProgress = income > 0 ? Math.min(100, Math.round((summary.paidThisMonth / income) * 100)) : 0;
 
   return (
 
@@ -121,15 +118,14 @@ export default function Dashboard() {
         <SummaryCard 
           title="Total Devido" 
           value={formatCurrency(summary.totalOwed)} 
-          badge={summary.totalOwed > 0 ? "+2% este mês" : null}
           icon={<Wallet className="text-on-surface-variant" size={20} />}
         />
 
         <SummaryCard 
           title="Valor Pago (Mês)" 
           value={formatCurrency(summary.paidThisMonth)} 
-          progress={summary.paidThisMonth > 0 ? 45 : 0}
-          progressLabel={summary.paidThisMonth > 0 ? "45% da meta mensal" : "0% da meta mensal"}
+          progress={paidProgress}
+          progressLabel={income > 0 ? `${paidProgress}% da renda mensal` : "Defina sua renda"}
           variant="secondary"
           icon={<CreditCard className="text-on-surface-variant" size={20} />}
         />
