@@ -48,12 +48,17 @@ export default function Dashboard() {
     };
   });
 
-  const currentMonthDebts = debts.filter(d => {
+  // O Saldo Livre deve ser: Renda - (Tudo que já paguei esse mês + Tudo que ainda preciso pagar urgente/esse mês)
+  const pendingToPayThisMonth = debts.filter(d => {
+    if (d.status === 'pago') return false;
+    // Se está atrasado, tem que pagar agora
+    if (d.status === 'atrasado') return true;
+    // Se vence esse mês, tem que pagar esse mês
     const dDate = new Date(d.dueDate + 'T12:00:00Z');
     return dDate.getMonth() === new Date().getMonth() && dDate.getFullYear() === new Date().getFullYear();
   }).reduce((acc, curr) => acc + curr.amount, 0);
 
-  const saldoLivre = income - currentMonthDebts;
+  const saldoLivre = income - summary.paidThisMonth - pendingToPayThisMonth;
 
   const paidProgress = income > 0 ? Math.min(100, Math.round((summary.paidThisMonth / income) * 100)) : 0;
 
