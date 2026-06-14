@@ -169,13 +169,20 @@ function DebtGridCard({ debt, onMarkPaid, onDelete }: DebtGridCardProps) {
       <div className="flex justify-between items-start">
         <div>
           <h3 className={cn("text-lg font-bold", isPago && "line-through")}>{debt.creditor || 'Sem Credor'}</h3>
-          <p className="text-sm text-on-surface-variant">{debt.description}</p>
+          <p className="text-sm text-on-surface-variant whitespace-pre-wrap">{debt.description}</p>
         </div>
-        <div className={cn(
-          "px-2 py-0.5 rounded text-[10px] font-bold tracking-widest",
-          isAtrasado ? "bg-error/10 text-error" : isPago ? "bg-secondary/10 text-secondary" : "bg-primary/10 text-primary"
-        )}>
-          {(debt.status || 'pendente').toUpperCase()}
+        <div className="flex flex-col items-end gap-2">
+          <div className={cn(
+            "px-2 py-0.5 rounded text-[10px] font-bold tracking-widest",
+            isAtrasado ? "bg-error/10 text-error" : isPago ? "bg-secondary/10 text-secondary" : "bg-primary/10 text-primary"
+          )}>
+            {(debt.status || 'pendente').toUpperCase()}
+          </div>
+          {debt.installments && debt.installments.total > 1 && (
+            <div className="px-2 py-0.5 rounded bg-surface-container text-[10px] font-bold tracking-widest text-on-surface-variant">
+              PARCELA {debt.installments.current}/{debt.installments.total}
+            </div>
+          )}
         </div>
       </div>
 

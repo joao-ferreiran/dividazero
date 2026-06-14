@@ -21,4 +21,6 @@ export interface SummaryData {
   paidThisMonth: number;
   nearDueCount: number;
   nearDueTotal: number;
+  installmentTotalOwed: number;
+  installmentCount: number;
 }

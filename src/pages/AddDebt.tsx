@@ -13,7 +13,8 @@ export default function AddDebt() {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [dueDate, setDueDate] = useState('');
-  const [installments, setInstallments] = useState('');
+  const [currentInstallment, setCurrentInstallment] = useState('');
+  const [totalInstallments, setTotalInstallments] = useState('');
   const [description, setDescription] = useState('');
 
   const isEditMode = !!id;
@@ -28,10 +29,16 @@ export default function AddDebt() {
         setDueDate(debtToEdit.dueDate);
         
         let desc = debtToEdit.description || '';
-        const match = desc.match(/Parcelas:\s*(\d+\/\d+)/i);
-        if (match) {
-          setInstallments(match[1]);
-          desc = desc.replace(/Parcelas:\s*\d+\/\d+/i, '').trim();
+        if (debtToEdit.installments) {
+          setCurrentInstallment(debtToEdit.installments.current.toString());
+          setTotalInstallments(debtToEdit.installments.total.toString());
+        } else {
+          const match = desc.match(/Parcelas:\s*(\d+)\/(\d+)/i);
+          if (match) {
+            setCurrentInstallment(match[1]);
+            setTotalInstallments(match[2]);
+            desc = desc.replace(/Parcelas:\s*\d+\/\d+/i, '').trim();
+          }
         }
         setDescription(desc);
       } else {
@@ -47,9 +54,15 @@ export default function AddDebt() {
       return;
     }
 
-    const finalDescription = installments 
-      ? `Parcelas: ${installments}${description ? '\n' + description : ''}`
-      : description;
+    const finalDescription = description;
+    
+    let instObj = undefined;
+    if (currentInstallment && totalInstallments) {
+       instObj = {
+         current: parseInt(currentInstallment),
+         total: parseInt(totalInstallments)
+       };
+    }
 
     if (isEditMode) {
       updateDebt(id!, {
@@ -57,7 +70,8 @@ export default function AddDebt() {
         amount: parseFloat(amount),
         category,
         dueDate,
-        description: finalDescription
+        description: finalDescription,
+        installments: instObj
       });
     } else {
       addDebt({
@@ -66,6 +80,7 @@ export default function AddDebt() {
         category,
         dueDate,
         description: finalDescription,
+        installments: instObj,
         status: 'pendente' as DebtStatus
       });
     }
@@ -121,14 +136,25 @@ export default function AddDebt() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-bold text-on-surface-variant" htmlFor="installments">Parcelas (Opcional)</label>
-                  <input 
-                    id="installments"
-                    value={installments}
-                    onChange={(e) => setInstallments(e.target.value)}
-                    className="px-4 py-3.5 bg-surface border border-outline-variant rounded-xl focus:border-primary outline-none transition-all placeholder:text-outline"
-                    placeholder="Ex: 3/12"
-                    type="text" 
-                  />
+                  <div className="flex items-center gap-2">
+                    <input 
+                      value={currentInstallment}
+                      onChange={(e) => setCurrentInstallment(e.target.value)}
+                      className="w-full px-4 py-3.5 bg-surface border border-outline-variant rounded-xl focus:border-primary outline-none transition-all placeholder:text-outline text-center"
+                      placeholder="Atual"
+                      type="number" 
+                      min="1"
+                    />
+                    <span className="text-on-surface-variant font-bold">de</span>
+                    <input 
+                      value={totalInstallments}
+                      onChange={(e) => setTotalInstallments(e.target.value)}
+                      className="w-full px-4 py-3.5 bg-surface border border-outline-variant rounded-xl focus:border-primary outline-none transition-all placeholder:text-outline text-center"
+                      placeholder="Total"
+                      type="number" 
+                      min="1"
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-bold text-on-surface-variant" htmlFor="category">Categoria *</label>

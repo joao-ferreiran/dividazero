@@ -174,34 +174,53 @@ export const DebtProvider = ({ children }: { children: ReactNode }) => {
     }));
 
     // Auto-advance installments if applicable
-    const match = debt.description?.match(/Parcelas:\s*(\d+)\/(\d+)/i);
-    if (match) {
-      const current = parseInt(match[1]);
-      const total = parseInt(match[2]);
-      if (current < total) {
-        const newDescription = debt.description.replace(/Parcelas:\s*\d+\/\d+/i, `Parcelas: ${current + 1}/${total}`);
-        
-        const [year, month, day] = debt.dueDate.split('-');
-        let nextMonth = parseInt(month) + 1;
-        let nextYear = parseInt(year);
-        if (nextMonth > 12) {
-          nextMonth = 1;
-          nextYear += 1;
-        }
-        
-        const daysInNextMonth = new Date(nextYear, nextMonth, 0).getDate();
-        const nextDay = Math.min(parseInt(day), daysInNextMonth);
-        const nextDueDate = `${nextYear}-${String(nextMonth).padStart(2, '0')}-${String(nextDay).padStart(2, '0')}`;
+    let current = 0;
+    let total = 0;
+    let hasInstallments = false;
+    let newDescription = debt.description;
+    let newInstallments = debt.installments;
 
-        await addDebt({
-          creditor: debt.creditor,
-          amount: debt.amount,
-          category: debt.category,
-          dueDate: nextDueDate,
-          description: newDescription,
-          status: 'pendente' as DebtStatus
-        });
+    if (debt.installments && debt.installments.current && debt.installments.total) {
+      current = debt.installments.current;
+      total = debt.installments.total;
+      if (current < total) {
+        hasInstallments = true;
+        newInstallments = { current: current + 1, total };
       }
+    } else {
+      const match = debt.description?.match(/Parcelas:\s*(\d+)\/(\d+)/i);
+      if (match) {
+        current = parseInt(match[1]);
+        total = parseInt(match[2]);
+        if (current < total) {
+          hasInstallments = true;
+          newDescription = debt.description.replace(/Parcelas:\s*\d+\/\d+/i, `Parcelas: ${current + 1}/${total}`);
+        }
+      }
+    }
+
+    if (hasInstallments) {
+      const [year, month, day] = debt.dueDate.split('-');
+      let nextMonth = parseInt(month) + 1;
+      let nextYear = parseInt(year);
+      if (nextMonth > 12) {
+        nextMonth = 1;
+        nextYear += 1;
+      }
+      
+      const daysInNextMonth = new Date(nextYear, nextMonth, 0).getDate();
+      const nextDay = Math.min(parseInt(day), daysInNextMonth);
+      const nextDueDate = `${nextYear}-${String(nextMonth).padStart(2, '0')}-${String(nextDay).padStart(2, '0')}`;
+
+      await addDebt({
+        creditor: debt.creditor,
+        amount: debt.amount,
+        category: debt.category,
+        dueDate: nextDueDate,
+        description: newDescription,
+        installments: newInstallments,
+        status: 'pendente' as DebtStatus
+      });
     }
   };
 
@@ -232,11 +251,36 @@ export const DebtProvider = ({ children }: { children: ReactNode }) => {
       return dueTime >= today && dueTime <= in7Days;
     });
 
+    const installmentDebts = pendingDebts.filter(d => {
+      if (d.installments && d.installments.total > 1) return true;
+      if (d.description?.match(/Parcelas:\s*(\d+)\/(\d+)/i)) return true;
+      return false;
+    });
+    const installmentCount = installmentDebts.length;
+    
+    const installmentTotalOwed = installmentDebts.reduce((acc, curr) => {
+      if (curr.installments && curr.installments.current && curr.installments.total) {
+         const remainingCount = curr.installments.total - curr.installments.current + 1;
+         return acc + (remainingCount * curr.amount);
+      } else {
+         const match = curr.description?.match(/Parcelas:\s*(\d+)\/(\d+)/i);
+         if (match) {
+           const cur = parseInt(match[1]);
+           const tot = parseInt(match[2]);
+           const remainingCount = tot - cur + 1;
+           return acc + (remainingCount * curr.amount);
+         }
+      }
+      return acc;
+    }, 0);
+
     return {
       totalOwed,
       paidThisMonth,
       nearDueCount: nearDueDebts.length,
-      nearDueTotal: nearDueDebts.reduce((acc, curr) => acc + curr.amount, 0)
+      nearDueTotal: nearDueDebts.reduce((acc, curr) => acc + curr.amount, 0),
+      installmentTotalOwed,
+      installmentCount
     };
   };
 

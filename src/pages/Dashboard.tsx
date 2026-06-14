@@ -263,6 +263,50 @@ export default function Dashboard() {
         </div>
 
       </section>
+
+      {/* Installments Summary */}
+      <section className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-bold">Resumo de Parcelamentos</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-surface-container-low rounded-2xl p-6 border border-outline-variant shadow-sm flex flex-col gap-2">
+            <span className="text-sm font-medium text-on-surface-variant">Total Restante em Parcelas</span>
+            <span className="label-numeric text-3xl font-bold text-primary">{formatCurrency(summary.installmentTotalOwed)}</span>
+            <span className="text-sm text-on-surface-variant">{summary.installmentCount} dívidas parceladas ativas</span>
+          </div>
+          <div className="bg-white rounded-2xl p-6 border border-outline-variant shadow-sm flex flex-col gap-3 max-h-[200px] overflow-y-auto">
+            {debts.filter(d => d.status !== 'pago' && (d.installments?.total > 1 || d.description?.match(/Parcelas:/i))).length > 0 ? (
+              debts.filter(d => d.status !== 'pago' && (d.installments?.total > 1 || d.description?.match(/Parcelas:/i))).map(debt => {
+                let current = 1, total = 1;
+                if (debt.installments) {
+                  current = debt.installments.current;
+                  total = debt.installments.total;
+                } else {
+                  const match = debt.description?.match(/Parcelas:\s*(\d+)\/(\d+)/i);
+                  if (match) {
+                    current = parseInt(match[1]);
+                    total = parseInt(match[2]);
+                  }
+                }
+                const remaining = total - current + 1;
+                const remainingValue = remaining * debt.amount;
+                return (
+                  <div key={debt.id} className="flex justify-between items-center pb-2 border-b border-outline-variant/50 last:border-0 last:pb-0">
+                    <div>
+                      <h4 className="font-bold text-on-surface">{debt.creditor}</h4>
+                      <p className="text-xs text-on-surface-variant">Faltam {remaining} parcelas (Atual: {current}/{total})</p>
+                    </div>
+                    <span className="label-numeric font-bold text-on-surface">{formatCurrency(remainingValue)}</span>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-sm text-on-surface-variant text-center my-auto">Nenhuma dívida parcelada ativa.</p>
+            )}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
