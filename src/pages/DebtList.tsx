@@ -29,16 +29,26 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, confirmText
 
 export default function DebtList() {
   const { debts, markAsPaid, deleteDebt } = useDebts();
+  const [activeTab, setActiveTab] = useState<'ativas' | 'pagas'>('ativas');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [modalConfig, setModalConfig] = useState<{isOpen: boolean, type: 'delete' | 'pay', debtId: string, creditor: string} | null>(null);
 
   const filteredDebts = debts.filter(debt => {
+    // 1. Filter by Tab (Ativas = pendente/atrasado | Pagas = pago)
+    const isPago = debt.status === 'pago';
+    if (activeTab === 'ativas' && isPago) return false;
+    if (activeTab === 'pagas' && !isPago) return false;
+
+    // 2. Text Search
     const matchesSearch = (debt.creditor || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
                           (debt.description || '').toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // 3. Status/Category
     const matchesStatus = statusFilter ? debt.status === statusFilter : true;
     const matchesCategory = categoryFilter ? debt.category === categoryFilter : true;
+    
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
@@ -59,7 +69,7 @@ export default function DebtList() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
           <div>
             <h1 className="text-3xl font-bold">Minhas Dívidas</h1>
-            <p className="text-on-surface-variant mt-2">Acompanhe e gerencie seus pagamentos pendentes.</p>
+            <p className="text-on-surface-variant mt-2">Acompanhe e gerencie seus pagamentos.</p>
           </div>
           <Link 
             to="/adicionar"
@@ -67,6 +77,28 @@ export default function DebtList() {
           >
             <Plus size={20} /> Nova Dívida
           </Link>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex bg-surface-container-low p-1 rounded-xl w-full sm:max-w-xs">
+          <button 
+            onClick={() => setActiveTab('ativas')}
+            className={cn(
+              "flex-1 py-2 text-sm font-bold rounded-lg transition-all cursor-pointer",
+              activeTab === 'ativas' ? "bg-white text-primary shadow-sm" : "text-on-surface-variant hover:text-on-surface"
+            )}
+          >
+            Ativas
+          </button>
+          <button 
+            onClick={() => setActiveTab('pagas')}
+            className={cn(
+              "flex-1 py-2 text-sm font-bold rounded-lg transition-all cursor-pointer",
+              activeTab === 'pagas' ? "bg-white text-primary shadow-sm" : "text-on-surface-variant hover:text-on-surface"
+            )}
+          >
+            Histórico (Pagas)
+          </button>
         </div>
 
         {/* Filters bar */}
@@ -82,16 +114,17 @@ export default function DebtList() {
             />
           </div>
           <div className="flex flex-col sm:flex-row gap-4">
-            <select 
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="flex-1 sm:flex-none border border-outline-variant rounded-xl px-4 py-2 bg-surface text-sm focus:border-primary outline-none sm:min-w-[150px]"
-            >
-              <option value="">Todos os Status</option>
-              <option value="atrasado">Atrasado</option>
-              <option value="pendente">Pendente</option>
-              <option value="pago">Pago</option>
-            </select>
+            {activeTab === 'ativas' && (
+              <select 
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="flex-1 sm:flex-none border border-outline-variant rounded-xl px-4 py-2 bg-surface text-sm focus:border-primary outline-none sm:min-w-[150px]"
+              >
+                <option value="">Status</option>
+                <option value="atrasado">Atrasado</option>
+                <option value="pendente">Pendente</option>
+              </select>
+            )}
             <select 
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
