@@ -87,13 +87,15 @@ export const DebtProvider = ({ children }: { children: ReactNode }) => {
         amount: Number(debt.amount),
         originalAmount: debt.originalAmount ? Number(debt.originalAmount) : undefined
       };
-      if (processed.status === 'pendente') {
+      if (processed.status !== 'pago') {
         const dueDate = new Date(processed.dueDate);
         const dueTime = new Date(dueDate.getTime() + dueDate.getTimezoneOffset() * 60000);
         dueTime.setHours(0, 0, 0, 0);
         
         if (dueTime < today) {
-          return { ...processed, status: 'atrasado' as DebtStatus };
+          processed.status = 'atrasado' as DebtStatus;
+        } else {
+          processed.status = 'pendente' as DebtStatus;
         }
       }
       return processed;
@@ -116,7 +118,21 @@ export const DebtProvider = ({ children }: { children: ReactNode }) => {
     }
 
     if (data && data.length > 0) {
-      setDebts(prev => [data[0], ...prev]);
+      const addedDebt = data[0];
+      if (addedDebt.status !== 'pago') {
+        const dueDate = new Date(addedDebt.dueDate);
+        const dueTime = new Date(dueDate.getTime() + dueDate.getTimezoneOffset() * 60000);
+        dueTime.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (dueTime < today) {
+          addedDebt.status = 'atrasado';
+        } else {
+          addedDebt.status = 'pendente';
+        }
+      }
+      setDebts(prev => [addedDebt, ...prev]);
     }
   };
 

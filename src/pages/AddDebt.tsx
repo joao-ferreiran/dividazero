@@ -1,4 +1,4 @@
-import { FileText, Save, X, Info } from 'lucide-react';
+import { FileText, Save, X, Info, CheckCircle2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDebts } from '../contexts/DebtContext';
@@ -16,6 +16,7 @@ export default function AddDebt() {
   const [currentInstallment, setCurrentInstallment] = useState('');
   const [totalInstallments, setTotalInstallments] = useState('');
   const [description, setDescription] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const isEditMode = !!id;
 
@@ -84,7 +85,8 @@ export default function AddDebt() {
         installments: instObj,
         status: 'pendente' as DebtStatus
       });
-      alert('Dívida adicionada com sucesso!');
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
       setCreditor('');
       setAmount('');
       setCategory('');
@@ -96,7 +98,14 @@ export default function AddDebt() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500 relative">
+      {showSuccess && (
+        <div className="fixed top-6 right-6 z-[100] bg-secondary text-white px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3 animate-in slide-in-from-top-4 fade-in duration-300">
+          <CheckCircle2 size={24} />
+          <span className="font-bold">Dívida salva com sucesso!</span>
+        </div>
+      )}
+
       <div className="mb-8">
         <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">{isEditMode ? 'Editar Dívida' : 'Adicionar Nova Dívida'}</h1>
         <p className="text-on-surface-variant text-lg mt-2">Preencha os detalhes abaixo para registrar um novo compromisso financeiro.</p>
