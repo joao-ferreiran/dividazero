@@ -73,6 +73,7 @@ export default function AddDebt() {
         description: finalDescription,
         installments: instObj
       });
+      navigate('/dividas');
     } else {
       addDebt({
         creditor,
@@ -83,9 +84,15 @@ export default function AddDebt() {
         installments: instObj,
         status: 'pendente' as DebtStatus
       });
+      alert('Dívida adicionada com sucesso!');
+      setCreditor('');
+      setAmount('');
+      setCategory('');
+      setDueDate('');
+      setCurrentInstallment('');
+      setTotalInstallments('');
+      setDescription('');
     }
-
-    navigate('/dividas');
   };
 
   return (
