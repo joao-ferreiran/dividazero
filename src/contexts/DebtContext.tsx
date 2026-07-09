@@ -70,7 +70,7 @@ export const DebtProvider = ({ children }: { children: ReactNode }) => {
     const { data, error } = await supabase
       .from('debts')
       .select('*')
-      .order('dueDate', { ascending: true });
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching debts:', error);
@@ -116,7 +116,7 @@ export const DebtProvider = ({ children }: { children: ReactNode }) => {
     }
 
     if (data && data.length > 0) {
-      setDebts(prev => [...prev, data[0]]);
+      setDebts(prev => [data[0], ...prev]);
     }
   };
 
