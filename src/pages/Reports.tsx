@@ -1,5 +1,5 @@
 import { Download, FileText, TrendingDown, Calendar, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useDebts } from '../contexts/DebtContext';
 import { formatCurrency, cn } from '../lib/utils';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -8,50 +8,56 @@ export default function Reports() {
   const { debts, summary } = useDebts();
   const [showAllCreditors, setShowAllCreditors] = useState(false);
 
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-  const reportData = Array.from({ length: 6 }).map((_, i) => {
-    const date = new Date();
-    date.setMonth(date.getMonth() - (5 - i));
-    const targetMonth = date.getMonth();
-    const targetYear = date.getFullYear();
+  const reportData = useMemo(() => {
+    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    return Array.from({ length: 6 }).map((_, i) => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - (5 - i));
+      const targetMonth = date.getMonth();
+      const targetYear = date.getFullYear();
 
-    const monthDebts = debts.filter(d => {
-      const dDate = new Date(d.dueDate + 'T12:00:00Z');
-      return dDate.getMonth() === targetMonth && dDate.getFullYear() === targetYear;
+      const monthDebts = debts.filter(d => {
+        const dDate = new Date(d.dueDate + 'T12:00:00Z');
+        return dDate.getMonth() === targetMonth && dDate.getFullYear() === targetYear;
+      });
+
+      const dividaTotal = monthDebts.reduce((acc, curr) => acc + curr.amount, 0);
+      const pagoTotal = monthDebts.filter(d => d.status === 'pago').reduce((acc, curr) => acc + curr.amount, 0);
+
+      return {
+        month: months[targetMonth],
+        divida: dividaTotal,
+        pago: pagoTotal
+      };
     });
+  }, [debts]);
 
-    const dividaTotal = monthDebts.reduce((acc, curr) => acc + curr.amount, 0);
-    const pagoTotal = monthDebts.filter(d => d.status === 'pago').reduce((acc, curr) => acc + curr.amount, 0);
-
-    return {
-      month: months[targetMonth],
-      divida: dividaTotal,
-      pago: pagoTotal
-    };
-  });
-
-  const creditorTotals = debts.reduce((acc, debt) => {
-    if (debt.status !== 'pago') {
-      acc[debt.creditor] = (acc[debt.creditor] || 0) + debt.amount;
-    }
-    return acc;
-  }, {} as Record<string, number>);
+  const creditorTotals = useMemo(() => {
+    return debts.reduce((acc, debt) => {
+      if (debt.status !== 'pago') {
+        acc[debt.creditor] = (acc[debt.creditor] || 0) + debt.amount;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+  }, [debts]);
 
   const totalPending = Object.values(creditorTotals).reduce((a, b) => a + b, 0);
 
-  const dynamicCreditors = Object.entries(creditorTotals)
-    .map(([name, amount], index) => {
-      const colors = ['#EC7000', '#CC092F', '#003d9b', '#00687a', '#ba1a1a'];
-      return {
-        name,
-        type: 'Dívida',
-        amount,
-        percent: totalPending > 0 ? Math.round((amount / totalPending) * 100) : 0,
-        color: colors[index % colors.length],
-        initial: name.charAt(0).toUpperCase()
-      };
-    })
-    .sort((a, b) => b.amount - a.amount);
+  const dynamicCreditors = useMemo(() => {
+    return Object.entries(creditorTotals)
+      .map(([name, amount], index) => {
+        const colors = ['#EC7000', '#CC092F', '#003d9b', '#00687a', '#ba1a1a'];
+        return {
+          name,
+          type: 'Dívida',
+          amount,
+          percent: totalPending > 0 ? Math.round((amount / totalPending) * 100) : 0,
+          color: colors[index % colors.length],
+          initial: name.charAt(0).toUpperCase()
+        };
+      })
+      .sort((a, b) => b.amount - a.amount);
+  }, [creditorTotals, totalPending]);
 
   const handleExportCSV = () => {
     const header = ['Credor', 'Valor', 'Vencimento', 'Status', 'Categoria'];
